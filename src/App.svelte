@@ -233,6 +233,7 @@
       }
     }
     categories = categories;
+    localStorage.setItem('categories', JSON.stringify(categories));
   }
 </script>
 
