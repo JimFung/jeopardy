@@ -16,7 +16,13 @@
     questions: question[];
   }
 
+  interface Team {
+    id: number,
+    score: number,
+  }
+
   let categories: Category[] = [];
+  let teams: Team[] = []
 
   onMount(() => {
     if (localStorage.getItem('categories')) {
@@ -206,6 +212,10 @@
         },
       ];
     }
+    
+    if (localStorage.getItem('teams')) {
+      teams = JSON.parse(localStorage.getItem('teams'))
+    }
   });
 
   let modalData: question = null;
@@ -233,7 +243,20 @@
       }
     }
     categories = categories;
+    teams = [];
     localStorage.setItem('categories', JSON.stringify(categories));
+    localStorage.setItem('teams', JSON.stringify([]));
+  }
+
+  function addTeam() {
+    teams = [...teams, { id: teams.length + 1, score: 0 }];
+    localStorage.setItem('teams', JSON.stringify(teams));
+  }
+
+  function increaseScore(index, value) {
+    teams[index].score = teams[index].score + value;
+    teams = teams;
+    localStorage.setItem('teams', JSON.stringify(teams));
   }
 </script>
 
@@ -249,7 +272,7 @@
       <h2 class='font-sans font-bold text-4xl text-center w-4/6 mb-6'>
         {modalData.text}
       </h2>
-      <h3 class={`mb-6 text-3xl ${hideAnswer ? 'text-blue-700' : ''}`}>
+      <h3 class={`mb-12 text-3xl ${hideAnswer ? 'text-blue-700' : ''}`}>
         {modalData.answer}
       </h3>
       <button
@@ -258,6 +281,18 @@
           hideAnswer = false;
           setAnswered(modalData.id);
         }}>Show Answer</button>
+      <div class='flex w-3/6 space-x-2 mb-3 justify-center'>
+        {#each teams as team, i}
+          <button
+          class='border px-4 py-2 rounded'
+          on:click={() => {
+            setAnswered(modalData.id);
+            increaseScore(i, modalData.value);
+            modalData = null;
+            hideAnswer = true;
+          }}>Team {team.id}</button>
+        {/each}
+      </div>
       <button
         class='border px-4 py-2 rounded'
         on:click={() => {
@@ -270,16 +305,32 @@
 
 {#if drawerOpen}
   <Drawer on:close={() => drawerOpen = false} bind:open={drawerOpen}>
-    <div class='bg-blue-800 h-screen shadow-xl py-8'>
+    <div class='bg-blue-800 h-screen py-8 shadow-2xl'>
       <h2 class='text-yellow-200 text-3xl font-sans font-medium px-4 mb-6'>Options</h2>
       <ul>
         <li>
-          <button class='w-full flex text-left px-4 py-2 text-2xl text-yellow-200 font-sans font-light items-center hover:bg-yellow-300 hover:text-blue-800' on:click={() => { resetBoard(); drawerOpen = false; }}>
+          <button class='w-full flex items-center text-left px-4 py-2 mb-4 text-yellow-200 text-2xl font-sans font-light hover:bg-yellow-200 hover:text-blue-800' on:click={() => { resetBoard(); drawerOpen = false; }}>
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-            <span class='ml-4 '>Reset board</span>
+            <span class='ml-4'>Reset Game</span>
           </button>
         </li>
       </ul>
+      <hr class='mx-auto w-5/6' />
+      <div class='flex flex-col p-4'>
+        <div class='flex text-yellow-200'>
+          <h2 class='flex-grow text-lg'>Teams</h2>
+          <button class='flex items-center' on:click={addTeam}>
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+            Add Team
+          </button>
+        </div>
+        {#each teams as team}
+          <div class='flex flex-col w-full p-4 mt-4 border-2 rounded bg-blue-600 text-yellow-200 border-yellow-200'>
+            <p>Team {team.id}</p>
+            <p>Score: {team.score}</p>
+          </div>
+        {/each}
+      </div>
     </div>
   </Drawer>
 {/if}
