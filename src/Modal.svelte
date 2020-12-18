@@ -52,7 +52,7 @@
 		left: 0;
 		width: 100%;
 		height: 100%;
-		background: rgba(0,0,0,0.3);
+		background: rgba(0, 0, 0, 0.493);
 	}
 
 	.modal {
@@ -64,10 +64,7 @@
 		overflow: auto;
 		transform: translate(-50%,-50%);
 		border-radius: 0.2em;
-		background: transparent;
-	}
-
-	button {
-		display: block;
+    background: transparent;
+    z-index: 10;
 	}
 </style>
